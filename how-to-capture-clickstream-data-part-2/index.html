@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>How To Capture Clickstream Data (Part 2)</title>
+    <meta name="description" content="Capturing Clickstream Data using Python &amp; JavaScript" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="How To Capture Clickstream Data (Part 2)">
+    <meta name="twitter:description" content="Capturing Clickstream Data using Python &amp; JavaScript">
+    <meta name="twitter:site" content="https://www.atindriyaghosh.com">
+    <meta name="twitter:creator" content="@A3Ghosh">
+    <meta name="google-site-verification" content="">
+    <meta property="fb:admins" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How To Capture Clickstream Data (Part 2)">
+    <meta property="og:description" content="Capturing Clickstream Data using Python &amp; JavaScript">
+
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../assets/js/styles/obsidian.css">
+    <link rel="stylesheet" href="http://brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/main.css" />
+    <link rel="stylesheet" type="text/css" media="print" href="../assets/css/print.css" />
+	<!-- Pushy CSS -->
+    <link rel="stylesheet" href="../assets/css/pushy.css">
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <link rel="canonical" href="https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/" />
+    
+    <meta property="og:site_name" content="Atindriya Ghosh" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="How To Capture Clickstream Data (Part 2)" />
+    <meta property="og:description" content="Capturing Clickstream Data using Python & JavaScript..." />
+    <meta property="og:url" content="https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/" />
+    <meta property="article:published_time" content="2014-06-29T12:00:00.000Z" />
+    <meta property="article:modified_time" content="2015-02-07T19:25:18.460Z" />
+    <meta property="article:tag" content="Clickstream Data" />
+    <meta property="article:tag" content="Tracking Pixel" />
+    <meta property="article:tag" content="Python" />
+    <meta property="article:tag" content="JavaScript" />
+    
+    <meta name="twitter:card" content="content" />
+    <meta name="twitter:title" content="How To Capture Clickstream Data (Part 2)" />
+    <meta name="twitter:description" content="Capturing Clickstream Data using Python & JavaScript..." />
+    <meta name="twitter:url" content="https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Atindriya Ghosh",
+    "author": {
+        "@type": "Person",
+        "name": "Atindriya Ghosh",
+        "image": "https://www.atindriyaghosh.com/content/images/2015/02/Self-1.jpg",
+        "url": "https://www.atindriyaghosh.com/author/atindriya-ghosh",
+        "sameAs": null
+    },
+    "headline": "How To Capture Clickstream Data (Part 2)",
+    "url": "https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/",
+    "datePublished": "2014-06-29T12:00:00.000Z",
+    "dateModified": "2015-02-07T19:25:18.460Z",
+    "keywords": "Clickstream Data, Tracking Pixel, Python, JavaScript",
+    "description": "Capturing Clickstream Data using Python & JavaScript"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.5" />
+    <link rel="alternate" type="application/rss+xml" title="Atindriya Ghosh" href="../rss" />
+</head>
+<body class="post-template tag-clickstream-data tag-tracking-pixel tag-python tag-javascript">
+	<!-- Pushy Menu -->
+    <nav class="pushy pushy-left">
+        <ul>
+			<li><a href=".."><span class="fa fa-home fa-2x"></span>&nbsp;&nbsp;&nbsp;&nbsp;Home</a></li>
+            <li><a href="../aboutme"><span class="fa fa-user fa-2x"></span>&nbsp;&nbsp;&nbsp;&nbsp;About Me</a></li>
+			<li>
+			<div id="at_search">
+				<form>
+				  <input type="text" id="search-field" placeholder="Search" autocomplete="off" />
+				</form>
+				<div id="results" class="at_search_results"></div>
+			</div>
+			</li>
+        </ul>
+    </nav>
+
+    <!-- Site Overlay -->
+    <div class="site-overlay"></div>
+	
+	<div id="container">
+		<!-- Menu Button -->
+		<div class="menu-btn logo-readium logo"><span class="logo"></span></div>
+		
+
+<main role="main">
+	<!-- Added this fix since IE doesn't support main tag -->
+	<div class="content">
+
+		<article class="post tag-clickstream-data tag-tracking-pixel tag-python tag-javascript">
+
+
+
+			<div class="noarticleimage">
+				<div class="post-meta">
+					<h1 class="post-title">How To Capture Clickstream Data (Part 2)</h1>
+					<div class="cf post-meta-text">
+						<div class="author-image" style="background-image: url(../content/images/2015/02/Self-1.jpg)">Blog Logo</div>
+						<h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person"><a href="../author/atindriya-ghosh">Atindriya Ghosh</a></h4> on
+						<time datetime="2014-06-29">29 Jun 2014</time>, tagged on <span class="post-tag-clickstream-data"><a href="../tag/clickstream-data">Clickstream Data</a></span><span class="post-tag-tracking-pixel">, <a href="../tag/tracking-pixel">Tracking Pixel</a></span><span class="post-tag-python">, <a href="../tag/python">Python</a></span><span class="post-tag-javascript">, <a href="../tag/javascript">JavaScript</a></span>
+					</div>
+				</div>
+			</div>
+			<br>
+			<br>
+			<br>
+
+
+
+				<section class="post-content">
+					<div class="post-reading">
+						<span class="post-reading-time"></span> read
+					</div>
+					<a name="topofpage"></a>
+					<p>Today, I'm going to demonstrate a more complex example for capturing clickstream data. </p>
+
+<h2 id="capturingclickstreamdatafromablog">Capturing Clickstream Data From a Blog</h2>
+
+<p>In my previous post, I captured a <em>pageView</em> event from a single page. If you haven't read that post yet, you can find it <a href="https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-1/">here</a>.</p>
+
+<p>Today, I'm going to take this a step further by capturing 3 types of click events from a simple blog. </p>
+
+<p>The code is implemented in Python and JavaScript with some HTML and CSS used for styling the sample blog. The entire source code can be found on <a href="https://github.com/atindriyaghosh/Clickstream-Data-Ingestion/tree/master/clickstream-data-capture/part-2">GitHub</a>. </p>
+
+<h3 id="clickevents">Click Events</h3>
+
+<p>The click events that will be captured are</p>
+
+<ol>
+<li><em>pageView</em> event - Similar to the last post, it is generated whenever a relevant page is loaded.  </li>
+<li><em>search</em> event - This event is generated whenever a visitor uses the search box feature of the blog  </li>
+<li><em>signup</em> event - Whenever a visitor signs up for the newsletter, it results in a <em>signup</em> event.</li>
+</ol>
+
+<p>Each event will have a set of common attributes, namely</p>
+
+<ul>
+<li>Event Id - Unique Event Identifier (Defined by a V1 UUID)</li>
+<li>User Id - Unique User Identifier (Defined by a V4 UUID)</li>
+<li>Page Name - The name of the page that is viewed</li>
+<li>Action - Event Type (pageview, search or signup)</li>
+<li>Server Time - Time at which the server received the event (Stored in the format yyyy-MM-ddThh:mm:ss)</li>
+</ul>
+
+<p>Apart from these we will have some event specific attributes as  well</p>
+
+<ol>
+<li><em>search</em> event <br />
+<ul><li>searchTerm - This is the term that the visitor searched for</li></ul></li>
+<li><em>signup</em> event <br />
+<ul><li>name - The visitor's name</li>
+<li>email - His/Her email id</li></ul></li>
+</ol>
+
+<h3 id="trackingpixels">Tracking Pixels</h3>
+
+<p>Now there will be 3 different tracking pixels generated for each of these events.</p>
+
+<p>All the three tracking pixels will be created by the <code>onload</code> event of the <code>&lt;body&gt;</code> tag calling a JavaScript method. </p>
+
+<p>Since the JS code for a <em>pageView</em> event is similar to the previous post I'm not going to include it here.</p>
+
+<p>For a <em>search</em> event, the JS code looks something like this</p>
+
+<pre><code>function captureSearchTermEvent() {
+    var path = window.location.pathname;
+    var page = path.split("/").pop();
+
+    // Gets the serch term from the query parameters
+    var searchTerm = getSearchTerm(window.location.search.substring(1));
+    var img = new Image(1, 1);
+    var queryParams = "pageName=" + page + "&amp;action=search&amp;searchTerm=" + searchTerm;
+    img.src = "http://localhost:9000/_.gif?" + queryParams;
+    document.getElementById("trackingPixel").appendChild(img);
+}
+</code></pre>
+
+<p>This will generate an <code>&lt;img&gt;</code> with the following <code>src</code> attribute</p>
+
+<pre><code>http://localhost:9000/_.gif?pageName=search&amp;action=search&amp;searchTerm=test+search+term
+</code></pre>
+
+<p>The JS method for a <em>signup</em> event is </p>
+
+<pre><code>function captureSignUpEvent() {
+    var path = window.location.pathname;
+    var page = path.split("/").pop();
+
+    // Gets the name and email from the query parameters
+    var map = getNameAndEmail(window.location.search.substring(1));
+    var img = new Image(1, 1);
+    var queryParams = "pageName=" + page + "&amp;action=signup&amp;name=" + map["name"] + "&amp;email=" + map["email"];
+    img.src = "http://localhost:9000/_.gif?" + queryParams;
+    document.getElementById("trackingPixel").appendChild(img);
+}
+</code></pre>
+
+<p>and will generate an <code>&lt;img&gt;</code> with the <code>src</code></p>
+
+<pre><code>http://localhost:9000/_.gif?pageName=signup&amp;action=signup&amp;name=John+Doe&amp;email=john%40doe.com
+</code></pre>
+
+<h3 id="restfulwebservice">RESTful Web Service</h3>
+
+<p>The web service will capture the click event and log it to a file on the web server. The raw click events will be in the following format</p>
+
+<pre><code>event_id=f6be8dc8-ff78-11e3-8914-0a8e4d5da239|user_id=fd07b3be-d3fa-4b12-8c71-3f4a3b71d9d0|page_name=home|action=pageView|server_time=2014-06-29T10:34:35
+
+event_id=401c7d26-ff7f-11e3-ac38-0a8e4d5da239|user_id=fd07b3be-d3fa-4b12-8c71-3f4a3b71d9d0|page_name=search|action=search|server_time=2014-06-29T11:19:35|searchTerm=test search term
+
+event_id=ecbd8506-ff80-11e3-ac38-0a8e4d5da239|user_id=fd07b3be-d3fa-4b12-8c71-3f4a3b71d9d0|page_name=signup|action=signup|server_time=2014-06-29T11:31:34|email=john@doe.com|name=John Doe
+</code></pre>
+
+<p>If you want to try out the sample code, please feel free to get the full source code on <a href="https://github.com/atindriyaghosh/Clickstream-Data-Ingestion/tree/master/clickstream-data-capture/part-2">GitHub</a>. </p>
+
+<p>This code implementation is mostly for demonstration purposes so it doesn't have much processing code. For example, the search box doesn't implement any search functionality and only returns a static page. Similarly, the signup form doesn't persist the signup details in a DB. But, it allow you to understand the how the click events are actually captured and stored in  log file.  </p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Now that we have captured some data the next step would be to ingest this data some place where we can draw some insights from it. In future posts, I will show simple ways in which we can accomplish this. </p>
+				</section>
+				<footer class="post-footer">
+					<section class="share">
+						<a class="icon-twitter" href="http://twitter.com/share?text=How%20To%20Capture%20Clickstream%20Data%20(Part%202)&url=https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/"
+							onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+							<span class="hidden">Twitter</span>
+						</a>
+						<a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/"
+							onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+							<span class="hidden">Facebook</span>
+						</a>
+						<a class="icon-google-plus" href="https://plus.google.com/share?url=https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/"
+						   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+							<span class="hidden">Google+</span>
+						</a>
+					</section>
+				</footer>
+				<div class="bottom-teaser cf">
+					<div class="isLeft">
+						<h5 class="index-headline featured"><span>Written by</span></h5>
+						<section class="author">
+							<div class="author-image" style="background-image: url(../content/images/2015/02/Self-1.jpg)">Blog Logo</div>
+							<h4><a href="../author/atindriya-ghosh">Atindriya Ghosh</a></h4>
+							<p class="bio">Atindriya is a Java Developer currently working with Accenture. He mostly works with and writes about Big Data Technologies</p>
+							<hr>
+							<p class="published">
+								<a class="fa fa-twitter fa-2x" href="https://twitter.com/A3Ghosh" target="_blank">
+								</a>
+								<a class="fa fa-google-plus fa-2x" href="https://plus.google.com/+AtindriyaGhosh1989?rel=author" target="_blank">
+								</a>
+								<a class="fa fa-linkedin-square fa-2x" href="http://in.linkedin.com/in/atindriyaghosh/" target="_blank">
+								</a>
+								<a class="fa fa-github fa-2x" href="https://github.com/atindriyaghosh" target="_blank">
+								</a>
+								<a class="fa fa-rss-square fa-2x" href="http://feedpress.me/atindriyaghosh" target="_blank">
+								</a>							
+							</p>
+						</section>
+					</div>
+					<div class="isRight">
+						<h5 class="index-headline featured"><span>Supported by</span></h5>
+						<footer class="site-footer">
+							<section class="poweredby">Proudly published with <a class="icon-ghost" href="http://ghost.org"> Ghost</a></section>
+							<div class="inner">
+								 <section class="copyright">All content copyright <a href="https://www.atindriyaghosh.com/">Atindriya Ghosh</a> &copy; 2015<br>All rights reserved.</section>
+
+							</div>
+						</footer>
+					</div>
+				</div>
+				
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				    var disqus_shortname = 'atindriyaghosh'; // required: replace example with your forum shortname
+				
+				    (function() {
+				        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+				        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				    })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+		</article>
+	</div>
+</main>
+
+<div class="bottom-closer">
+    <div class="background-closer-image" style="background-image: url(../content/images/2015/02/2230472EC0-1.jpg)">
+        Image
+    </div>
+    <div class="inner">
+        <h1 class="blog-title">Atindriya Ghosh</h1>
+        <h2 class="blog-description">Hi, I&#x27;m Atin and welcome to my blog! I primarily write about things I learn in my day job as a Java developer. Feel free to look around and share your thoughts.</h2>
+        <a href=".." class="btn">Back to Home</a>
+    </div>
+</div>
+
+	</div>
+    <script src="../public/jquery.js"></script>
+	
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="../assets/js/index.js"></script>
+    <script src="../assets/js/readingTime.min.js"></script>
+    <script src="../assets/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	<script type="text/javascript" src="../assets/js/google-analytics.js"></script>
+	
+	<!-- Pushy JS -->
+    <script type="text/javascript" src="../assets/js/min/pushy.min.js"></script>
+	
+	<!-- Ghosthunter JS -->
+	<script type="text/javascript" src="../assets/js/min/jquery.ghostHunter.min.js"></script>
+	<script type="text/javascript" src="../assets/js/ghostHunter-init.js"></script>
+	
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Atindriya Ghosh]]></title><description><![CDATA[Hi, I'm Atin and welcome to my blog! I primarily write about things I learn in my day job as a Java developer. Feel free to look around and share your thoughts.]]></description><link>https://www.atindriyaghosh.com/</link><generator>Ghost 0.5</generator><lastBuildDate>Sun, 08 Feb 2015 14:45:59 GMT</lastBuildDate><atom:link href="https://www.atindriyaghosh.com/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Recommendation Systems 3 - User-based Recommendations]]></title><description><![CDATA[<p>In the last <a href="https://www.atindriyaghosh.com/recommendation-systems-2-similarity-scores/" title="Similarity Scores">post</a>, I covered three different algorithms for calculating similarity scores. Now, lets see how these similarity scores can be used to generate User-based recommendations.</p>
+
+<h1 id="generatinguserbasedrecommendations">Generating User-based Recommendations</h1>
+
+<p>Similarity scores help us understand the similarity between different users. Now, how do we use this similarity data to actually generate recommendations?</p>
+
+<p>The easiest way is to select the most similar user, <em>User2</em>, to a specific user, <em>User1</em>, and recommend those items to <em>User1</em> which <em>User2</em> has rated highly but <em>User1</em> hasn't rated. </p>
+
+<p>But, this approach has a lot of potential problems. Consider <em>User3</em> and <em>User4</em> to be the next most-similar users to <em>User1</em>. Suppose both these users give high ratings to an item <em>itemA</em>, that <em>User2</em> has not yet rated. Thus, <em>itemA</em> will not show up as a recommendation to <em>User1</em> even though there is a very good probability that she would rate it highly.</p>
+
+<p>An extension of this problem is that <em>User2</em> gives <em>itemA</em> a poor rating. Again,  the recommendation system will not recommend <em>itemA</em> to <em>User1</em> even though <em>User3</em> and <em>User4</em> rate it highly.</p>
+
+<p>These issues can be solved by recommending items based on a weighted score, which is calculating by multiplying their similarity scores to their rating for that item.</p>
+
+<h2 id="example">Example</h2>
+
+<p>Let us take an example to understand this better.</p>
+
+<p>Consider we have a dataset of 5 users <em>User1</em>, <em>User2</em>, ..., <em>User5</em> and we have to generate recommendations for <em>User1</em>. </p>
+
+<p>The below table shows the similarity scores of <em>User2</em>, ..., <em>User5</em> specific to <em>User1</em>, the ratings for each user for three movies not rated by <em>User1</em> ("<em>Solaris</em>", "<em>Alien</em>" and "<em>Children of Heaven</em>") and the calculated weighted score for each movie.</p>
+
+<p><img src="https://www.atindriyaghosh.com/content/images/2015/02/Dataset.png" alt="Dataset"></p>
+
+<p>Thus, for <em>User2</em> the similarity score is <strong>0.99</strong> and the rating for the movie "<em>Solaris</em>" is <strong>3</strong> . Thus, the weighted score for "<em>Solaris</em>" for <em>User2</em> is <strong>2.97</strong> i.e. <code>similarity_score * rating</code>. Thus, the user with the higher similarity score will contribute more to the weighted score.</p>
+
+<p>After calculating all the weighted scores for each user, we can then add them up to get the total weighted score for each movie. </p>
+
+<p>This weighted score is then divided by the sum of the similarity scores for each user that rated that movie. This division ensures that movies that are rated by more users don't have an advantage over movies rated by less number of users.</p>
+
+<p>Thus, for the movie "<em>Children of Heaven</em>", we divide the total weighted score by the sum of the similarities of <em>User2</em>, <em>User4</em> and <em>User5</em> since <em>User3</em> has not rated the movie.</p>
+
+<p>This final weighted score is used to rank the movies, which can then be recommended to <em>User1</em>.</p>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The Python code to implement this is</p>
+
+<pre><code>def genRecommendations(self, user, simAlgo, numRecs=3):
+    """Generates recommendatons based on the following inputs
+        1. User for whom recommendations are to be provided
+        2. Recommendation algorithm to use
+           eucl - Euclidian distance
+           pearson - Pearson correlation
+           cosine - Cosine similarity
+        3. Maximum number of recommendations
+    """
+    totalWeights = {}
+    simSum = {}
+    for other_user in self._ratings.keys():
+        if(user != other_user):
+            # Calculate similarity scores according to passed algorithm
+            # name.
+            sim = self._calcSimilarity(user, other_user, simAlgo)
+            if(sim &gt; 0):
+                for movie in self._ratings[other_user]:
+                    if movie not in self._ratings[user] and self._ratings[
+                            other_user][movie] &gt; 0:
+                        totalWeights.setdefault(movie, 0)
+                        simSum.setdefault(movie, 0)
+                        totalWeights[movie] += sim * \
+                            self._ratings[other_user][movie]
+                        simSum[movie] += sim
+
+    recommMovies = [(movie, (weight / simSum[movie]))
+                    for movie, weight in totalWeights.items()]
+
+    recommMovies = sorted(recommMovies, key=lambda x: x[1])
+    recommMovies.reverse()
+    recommMovies = [(i + 1, self._items[movies[0]])
+                    for i, movies in enumerate(recommMovies[:numRecs])]
+    return recommMovies
+</code></pre>
+
+<p>The complete implementation of the User-based recommendation system can be found on <a href="https://github.com/atindriyaghosh/Collective-Intelligence/tree/master/recommendations" title="GitHub">Github</a>.</p>
+
+<p>The data that I have tested against is the <a href="http://grouplens.org/datasets/movielens/" title="MovieLens Dataset">MovieLens Dataset</a> provided by <a href="http://grouplens.org/" title="GroupLens">GroupLens</a>. For ease of access, I have added the relevant data files in the above GitHub repository.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>The User-based recommendation system is widely used but it does present problems when it comes to scalability. In this system, the similarity scores have to be re-computed every time a user rates a new item. Thus, for millions of users, the rate of re-computation will be very high. Additionally, the amount of processing to be performed in each computation will be huge.</p>
+
+<p>There are ways to alleviate these problems by offload the processing to a batch application or by calculating the weighted score with only the top N most similar users, but these approaches don't solve the fundamental scalability problems of this type of system.</p>
+
+<p>Nowadays, projects mostly use this system as an initial implementation since it is easy to implement and works well with small datasets. As the project evolves and matures, the User-based recommendation system is replaced with more powerful alternatives.</p>
+
+<h1 id="references">References</h1>
+
+<ol>
+<li><a href="http://www.amazon.com/Programming-Collective-Intelligence-Building-Applications/dp/0596529325" title="Programming Collective Intelligence">Programming Collective Intelligence</a>  </li>
+<li><a href="http://guidetodatamining.com/" title="A Programmer's Guide to Data Mining">A Programmer's Guide to Data Mining</a></li>
+</ol>
+
+<h1 id="datasets">Datasets</h1>
+
+<ol>
+<li><a href="http://grouplens.org/datasets/movielens/" title="MovieLens Dataset">MovieLens Dataset</a></li>
+</ol>]]></description><link>https://www.atindriyaghosh.com/recommendation-systems-3-user-based-recommendations/</link><guid isPermaLink="false">9bc45e15-837a-4101-adbe-c2ad4f1d4a01</guid><category><![CDATA[Python]]></category><category><![CDATA[Recommendation Systems]]></category><category><![CDATA[Collaborative Filtering]]></category><category><![CDATA[Machine Learning]]></category><category><![CDATA[User-based CF]]></category><dc:creator><![CDATA[Atindriya Ghosh]]></dc:creator><pubDate>Sun, 21 Dec 2014 09:24:00 GMT</pubDate></item><item><title><![CDATA[Recommendation Systems 2 - Similarity Scores]]></title><description><![CDATA[<p>This post is a continuation of my previous post on <a href="https://www.atindriyaghosh.com/recommendation-systems-1-collaborative-filtering/" title="Collaborative Filtering">Collaborative Filtering</a>. In this post, I will detail some of the techniques available for calculating similarity scores.</p>
+
+<h1 id="aquickrecap">A Quick Recap</h1>
+
+<p>Collaborative Filtering (CF) is a technique used in creating recommendation systems. This technique relies on a dataset of user preferences to provide recommendations to individual users.</p>
+
+<p>There are three categories of CF algorithms - User-based, Item-based and Hybrid. </p>
+
+<ol>
+<li>User-based algorithms calculate the most similar users to a specific user and use this data to generate recommendations  </li>
+<li>Item-based algorithms create a model of the relationships between items and calculate recommendations based on this model  </li>
+<li>Hybrid algorithms combine both of the above approaches</li>
+</ol>
+
+<p>The similarity between users is calculated based on a metric known as similarity score. The rest of the post will focus on three algorithms that are used to determine similarity score.</p>
+
+<h1 id="similarityscorealgorithms">Similarity Score Algorithms</h1>
+
+<p>There are many algorithms that can be used to calculate similarity scores. For the purposes of this post, I will cover only the following three algorithms</p>
+
+<ol>
+<li>Euclidean Distance-based Score  </li>
+<li>Pearson Correlation Score  </li>
+<li>Cosine Similarity Score</li>
+</ol>
+
+<p>All of these algorithms calculate a similarity score where a higher number indicates greater similarity. Since the similarity scores are normalized the highest similarity score is 1, which indicates that two users are identical.</p>
+
+<h2 id="euclideandistancebasedscore">Euclidean Distance-based Score</h2>
+
+<h3 id="concept">Concept</h3>
+
+<p>Euclidean distance is the straight line distance between two points. Consider a graph with only 2 axes which correspond to user ratings of 2 movies, i.e., the X-axis corresponds to the user ratings of the movie 'Seven Samurai' and the Y-axis corresponds to the user ratings of 'Taxi Driver'. If we have 2 users, User and User2, and plot them according to their ratings for these two movies on the graph, we would get something like this</p>
+
+<p><img src="https://www.atindriyaghosh.com/content/images/2015/02/Euclidean-Distance-Score.png" alt="alt Euclidean Distance Score"></p>
+
+<p>As shown in the graph above, the Euclidean distance is the straight-line distance between the two users.</p>
+
+<p>The mathematical formula to calculate it is</p>
+
+<p>$d(x,y) = \sqrt{ \sum\limits_{i=1}^n (x_i - y_i)^2}$</p>
+
+<p>While similarity is the measure of how similar items are, distance is the measure of their dissimilarity. Thus, the Euclidean distance between User1 and User2 tells us how dissimilar they are. In order to use this information in our Recommendation system, we have to convert it to a similarity metric.</p>
+
+<p>Thus, the mathematical expression to convert the Euclidean distance-based similarity score is</p>
+
+<p>$\dfrac{1}{1 + \sqrt{ \sum\limits_{i=1}^n (x_i - y_i)^2}}$</p>
+
+<h3 id="implementation">Implementation</h3>
+
+<p>Consider a simple dataset of movie ratings with  users - User1 and User2</p>
+
+<pre><code>ratings = {
+    'User1': {
+        'Seven Samurai': 4, 'Taxi Driver': 3,
+        'Usual Suspects, The': 3, 'Clerks': 1,
+        'Batman Forever': 2, 'Nosferatu': 4},
+    'User2': {
+        'Seven Samurai': 2, 'Taxi Driver': 4,
+        'Usual Suspects, The': 5, 'Clerks': 3,
+        'Batman Forever': 1}}    
+</code></pre>
+
+<p>The Python snippet will calculate the Euclidean Distance on only those movies that both the users have added ratings for.</p>
+
+<p>The snippet to calculate the similarity is</p>
+
+<pre><code>def calcEuclideanSim(user1, user2):
+    # Get the list of similar movies
+    similarMovies = [movie for movie in ratings[user1]
+                     if movie in ratings[user2]]
+
+    # If there are similar movies calculate similarity score, else similarity
+    # score is 0
+    similarityScore = 0 
+    if(len(similarMovies) != 0):
+        euclDistance = Decimal(sum(
+            pow(ratings[user1][movie] - ratings[user2][movie], 2)
+            for movie in similarMovies))
+
+        similarityScore = 1 / (1 + euclDistance)
+
+    return similarityScore
+</code></pre>
+
+<h2 id="pearsoncorrelationscore">Pearson Correlation Score</h2>
+
+<h3 id="concept">Concept</h3>
+
+<p>The Pearson Correlation score is used to understand the linear correlation between datasets which in turn helps us understand their similarity. Consider the following graph which has 2 axes - the X-axis for User1 and the Y-axis for User2. Thus, each point on the graph corresponds to the user ratings for a specific movie.</p>
+
+<p><img src="https://www.atindriyaghosh.com/content/images/2015/02/Pearson-Correlation-Score.png" alt="alt Pearson Correlation Score"></p>
+
+<p>The shown best-fit line is the straight line that best fits all the data points of the two datasets. The slope of this best-fit line gives us the correlation between the two datasets. The values for the Pearson Correlation range from -1 to +1 where -1 indicates no correlation i.e. no similarity and +1 indicates perfect correlation i.e. perfect similarity.</p>
+
+<p>The mathematical formula to calculate Pearson Correlation score is</p>
+
+<p>$r = \dfrac{n(\sum\limits_{i=1}^n x_iy_i) + (\sum\limits_{i=1}^n x_i) (\sum\limits_{i=1}^n y_i)}{\sqrt{[n\sum\limits_{i=1}^n x_i^2 - (\sum\limits_{i=1}^n x_i)^2][n\sum\limits_{i=1}^n y_i^2 - (\sum\limits_{i=1}^n y_i)^2]}}$</p>
+
+<h5 id="gradeinflation">Grade Inflation</h5>
+
+<p>In the real world, users are human beings that have differing opinions about the meaning of different ratings. User1 might be more lenient in her ratings and give a rating of 3 to a movie she considers average. On the other hand, User2 might be harsher and for her an average movie deserves a rating of 2.</p>
+
+<p>This variance is known as Grade Inflation. While the previous Euclidean approach does not address this issue, the Pearson Correlation score is one algorithm which can be used to fix this problem.</p>
+
+<h3 id="implementation">Implementation</h3>
+
+<p>Let us again take the above datasets of User1 and User2 such that</p>
+
+<pre><code>ratings = {
+    'User1': {
+        'Seven Samurai': 4, 'Taxi Driver': 3,
+        'Usual Suspects, The': 3, 'Clerks': 1,
+        'Batman Forever': 2, 'Nosferatu': 4},
+    'User2': {
+        'Seven Samurai': 2, 'Taxi Driver': 4,
+        'Usual Suspects, The': 5, 'Clerks': 3,
+        'Batman Forever': 1}}   
+</code></pre>
+
+<p>The Python snippet calculate Pearson Correlation is</p>
+
+<pre><code>def calcPearsonSim(user1, user2):
+    def calcSqrtExpr(n, a, b):
+        return sqrt(n * a - pow(b, 2))
+    prodSum = 0
+    sum1 = 0
+    sum2 = 0
+    sum1Sq = 0
+    sum2Sq = 0
+    n = 0
+    for movie in ratings[user1]:
+        if movie in ratings[user2]:
+            rating1 = ratings[user1][movie]
+            rating2 = ratings[user2][movie]
+            prodSum += rating1 * rating2
+            sum1 += rating1
+            sum2 += rating2
+            sum1Sq += pow(rating1, 2)
+            sum2Sq += pow(rating2, 2)
+            n += 1
+    ## Calculate numerator
+    num = n * prodSum - sum1 * sum2
+
+    ## Calculate denominator
+    denom = calcSqrtExpr(n, sum1Sq, sum1) * calcSqrtExpr(n, sum2Sq, sum2)
+    r = 0
+    if denom &gt; 0:
+        r = num / denom
+    return r
+</code></pre>
+
+<h2 id="cosinesimilarityscore">Cosine Similarity Score</h2>
+
+<h3 id="concept">Concept</h3>
+
+<p>Cosine Similarity is the the cosine measure between two vectors i.e. if we have two vectors User1 and User2 then their Cosine Similarity is the cosine of the angle between the two vectors.</p>
+
+<p>Consider 2 vectors User1 and User2 with only 2 elements corresponding to the ratings for the movies 'Seven Samurai' and 'Taxi Driver' as shown below</p>
+
+<p><img src="https://www.atindriyaghosh.com/content/images/2015/02/Cosine-Similarity-Score.png" alt="alt Cosine Similarity Score"></p>
+
+<p>The Cosine Similarity is the cosine of the angle between User1 and User2.</p>
+
+<p>The mathematical expression to calculate Cosine Similarity is</p>
+
+<p>$cos(x, y) = \dfrac{\sum\limits_{i=1}^n x_iy_i}{\sqrt{\sum\limits_{i=1}^n x_i^2} \sqrt{\sum\limits_{i=1}^n x_i^2}}$</p>
+
+<h3 id="implementation">Implementation</h3>
+
+<p>We use the same dataset for User1 and User2 again</p>
+
+<pre><code>ratings = {
+    'User1': {
+        'Seven Samurai': 4, 'Taxi Driver': 3,
+        'Usual Suspects, The': 3, 'Clerks': 1,
+        'Batman Forever': 2, 'Nosferatu': 4},
+    'User2': {
+        'Seven Samurai': 2, 'Taxi Driver': 4,
+        'Usual Suspects, The': 5, 'Clerks': 3,
+        'Batman Forever': 1}}   
+</code></pre>
+
+<p>and the list of all the movies</p>
+
+<pre><code>movies = ['Seven Samurai', 'Taxi Driver',
+      'Usual Suspects, The', 'Clerks',
+      'Batman Forever', 'Nosferatu']
+</code></pre>
+
+<p>The Python code will be</p>
+
+<pre><code>def calcCosineSim(user1, user2):
+    def calcLength(user):
+        return sqrt(sum(
+            pow(ratings[user][movie], 2) for movie in ratings[
+                user]))
+    user1Length = calcLength(user1)
+    user2Length = calcLength(user2)
+    dotProd = 0
+    for movie in movies:
+        dotProd += ratings[user1].get(
+            movie, 0) * ratings[user2].get(
+            movie, 0)
+
+    similarityScore = dotProd / (user1Length * user2Length)
+
+    return similarityScore
+</code></pre>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Thus, I have covered 3 algorithms used to calculate similarity scores and their corresponding Python code. But, calculating these scores is only an intermediate step in generating recommendations. In the next post, I will show how we can use these similarity scores to actually generate recommendations for users. </p>
+
+<h1 id="references">References</h1>
+
+<ol>
+<li><a href="http://www.amazon.com/Programming-Collective-Intelligence-Building-Applications/dp/0596529325" title="Programming Collective Intelligence">Programming Collective Intelligence</a>  </li>
+<li><a href="http://guidetodatamining.com/" title="A Programmer's Guide to Data Mining">A Programmer's Guide to Data Mining</a></li>
+</ol>]]></description><link>https://www.atindriyaghosh.com/recommendation-systems-2-similarity-scores/</link><guid isPermaLink="false">14c07f3d-de5a-459a-aeff-ba7db822a842</guid><category><![CDATA[Python]]></category><category><![CDATA[Recommendation Systems]]></category><category><![CDATA[Collaborative Filtering]]></category><category><![CDATA[Machine Learning]]></category><category><![CDATA[Similarity Scores]]></category><dc:creator><![CDATA[Atindriya Ghosh]]></dc:creator><pubDate>Sun, 28 Sep 2014 06:15:00 GMT</pubDate></item><item><title><![CDATA[Recommendation Systems 1 - Collaborative Filtering]]></title><description><![CDATA[<p>Recently, I started reading up on Machine Learning and some of the concepts surrounding it. This post is concerned with a technique called Collaborative Filtering used for generating recommendations with a focus on User-based Collaborative Filtering. Most of the content of this post is based on these two books - <a href="http://www.amazon.com/Programming-Collective-Intelligence-Building-Applications/dp/0596529325" title="Programming Collective Intelligence">Programming Collective Intelligence</a> and <a href="http://guidetodatamining.com/" title="A Programmer's Guide to Data Mining">A Programmer's Guide to Data Mining</a></p>
+
+<h1 id="whatismachinelearning">What Is Machine Learning?</h1>
+
+<p>To quote the book <a href="http://www.amazon.com/Programming-Collective-Intelligence-Building-Applications/dp/0596529325" title="Programming Collective Intelligence">Programming Collective Intelligence</a>  </p>
+
+<blockquote>
+  <p>Machine learning is a subfield of artificial intelligence (AI) concerned with algorithms that allow computers to learn.</p>
+</blockquote>
+
+<p>To elaborate, machine learning allows computers to detect certain patterns in some input data and then create a model based on these patterns. This model is then used to make predictions about any new data that is presented to it.</p>
+
+<p>Some of the most common applications of machine learning include search engines, recommendation systems, spam filtering among many others. </p>
+
+<h1 id="recommendationsystems">Recommendation Systems</h1>
+
+<p>Recommendation systems are the one of the most popular uses for Machine Learning. They are used in a myriad of places such as e-commerce websites to provide a personalized experience to users. In order to provide these recommendations the website captures clickstream or purchase data for customers and provides suggestions on what to buy next.</p>
+
+<p>The technique to provide recommendations that will be detailed in this post is called Collaborative Filtering. </p>
+
+<h1 id="collaborativefiltering">Collaborative Filtering</h1>
+
+<p>Collaborative Filtering (CF) involves predicting a user's preference for new items given her previous preferences and the preferences of other users. </p>
+
+<p>The user preferences can be anything ranging from explicit preferences such as rating scores to implicit preferences derived from purchase history. The preference metric used is dependent on the context of the dataset and the type of CF algorithm used.</p>
+
+<p>CF algorithms fall under one of three categories</p>
+
+<ol>
+<li><p>User-based CF algorithms - These algorithms calculate the similarity between users and then use this similarity metric to provide recommendations. Also called Memory-based CF.</p></li>
+<li><p>Item-based CF algorithms - Alternatively, these algorithms identify relationships between items and use them to create models. These models expose complex patterns between the different items which can then be used to make recommendations. Also called Model-based CF.</p></li>
+<li><p>Hybrid algorithms - Hybrid algorithms include algorithms that combine User-based and Item-based algorithms approaches.</p></li>
+</ol>
+
+<p>The rest of this post is going to focus only on User-based CF.</p>
+
+<h1 id="userbasedcollaborativefiltering">User-based Collaborative Filtering</h1>
+
+<p>Algorithms that fall into this category follow the same basic steps.</p>
+
+<p>To provide recommendations for a User U</p>
+
+<ol>
+<li>Calculate the similarity scores for each user relative to the U i.e. calculate user-user similarity  </li>
+<li>Identify the top K users most similar to U  </li>
+<li>Compute the prediction scores for items that U has no preferences for. These items should have atleast one user preference for a user in the top K most similar users list  </li>
+<li>Sort the items in the descending order of their prediction scores and return the top N results as recommendations</li>
+</ol>
+
+<p>There are various ways of calculating the similarity score such as Euclidean Distance Score, Pearson Correlation Score, Cosine Similarity Score etc. All these algorithms compute scores that fall between a normalized range like 0 - 1 where 1 indicates absolute similarity and 0 indicates no similarity.</p>
+
+<p>The reason that these algorithms are also called Memory-based CF is because they require the entire user-item dataset to be stored in memory to generate recommendations.</p>
+
+<p>These algorithms are the most widely used due to how easy they are to implement. </p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>This was a very brief introduction to Collaborative Filtering with a focus on User-based CF. In the next post, I will take this a bit further by explaining 3 different algorithms used to calculate similarity scores and implementing them in Python.</p>
+
+<h1 id="references">References</h1>
+
+<ol>
+<li><a href="http://www.amazon.com/Programming-Collective-Intelligence-Building-Applications/dp/0596529325" title="Programming Collective Intelligence">Programming Collective Intelligence</a>  </li>
+<li><a href="http://guidetodatamining.com/" title="A Programmer's Guide to Data Mining">A Programmer's Guide to Data Mining</a>  </li>
+<li><a href="http://files.grouplens.org/papers/www10_sarwar.pdf" title="Item-Based Collaborative Filtering Recommendation">Item-Based Collaborative Filtering Recommendation Algorithms</a>  </li>
+<li><a href="http://www.hindawi.com/journals/aai/2009/421425/" title="A Survey of Collaborative Filtering Techniques">A Survey of Collaborative Filtering Techniques</a></li>
+</ol>]]></description><link>https://www.atindriyaghosh.com/recommendation-systems-1-collaborative-filtering/</link><guid isPermaLink="false">04b21b39-1228-4b16-9809-a2d3acedbe0b</guid><category><![CDATA[Recommendation Systems]]></category><category><![CDATA[Collaborative Filtering]]></category><category><![CDATA[Machine Learning]]></category><category><![CDATA[User-based CF]]></category><dc:creator><![CDATA[Atindriya Ghosh]]></dc:creator><pubDate>Sun, 07 Sep 2014 07:08:00 GMT</pubDate></item><item><title><![CDATA[How To Capture Clickstream Data (Part 2)]]></title><description><![CDATA[<p>Today, I'm going to demonstrate a more complex example for capturing clickstream data. </p>
+
+<h2 id="capturingclickstreamdatafromablog">Capturing Clickstream Data From a Blog</h2>
+
+<p>In my previous post, I captured a <em>pageView</em> event from a single page. If you haven't read that post yet, you can find it <a href="https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-1/">here</a>.</p>
+
+<p>Today, I'm going to take this a step further by capturing 3 types of click events from a simple blog. </p>
+
+<p>The code is implemented in Python and JavaScript with some HTML and CSS used for styling the sample blog. The entire source code can be found on <a href="https://github.com/atindriyaghosh/Clickstream-Data-Ingestion/tree/master/clickstream-data-capture/part-2">GitHub</a>. </p>
+
+<h3 id="clickevents">Click Events</h3>
+
+<p>The click events that will be captured are</p>
+
+<ol>
+<li><em>pageView</em> event - Similar to the last post, it is generated whenever a relevant page is loaded.  </li>
+<li><em>search</em> event - This event is generated whenever a visitor uses the search box feature of the blog  </li>
+<li><em>signup</em> event - Whenever a visitor signs up for the newsletter, it results in a <em>signup</em> event.</li>
+</ol>
+
+<p>Each event will have a set of common attributes, namely</p>
+
+<ul>
+<li>Event Id - Unique Event Identifier (Defined by a V1 UUID)</li>
+<li>User Id - Unique User Identifier (Defined by a V4 UUID)</li>
+<li>Page Name - The name of the page that is viewed</li>
+<li>Action - Event Type (pageview, search or signup)</li>
+<li>Server Time - Time at which the server received the event (Stored in the format yyyy-MM-ddThh:mm:ss)</li>
+</ul>
+
+<p>Apart from these we will have some event specific attributes as  well</p>
+
+<ol>
+<li><em>search</em> event <br>
+<ul><li>searchTerm - This is the term that the visitor searched for</li></ul></li>
+<li><em>signup</em> event <br>
+<ul><li>name - The visitor's name</li>
+<li>email - His/Her email id</li></ul></li>
+</ol>
+
+<h3 id="trackingpixels">Tracking Pixels</h3>
+
+<p>Now there will be 3 different tracking pixels generated for each of these events.</p>
+
+<p>All the three tracking pixels will be created by the <code>onload</code> event of the <code>&lt;body&gt;</code> tag calling a JavaScript method. </p>
+
+<p>Since the JS code for a <em>pageView</em> event is similar to the previous post I'm not going to include it here.</p>
+
+<p>For a <em>search</em> event, the JS code looks something like this</p>
+
+<pre><code>function captureSearchTermEvent() {
+    var path = window.location.pathname;
+    var page = path.split("/").pop();
+
+    // Gets the serch term from the query parameters
+    var searchTerm = getSearchTerm(window.location.search.substring(1));
+    var img = new Image(1, 1);
+    var queryParams = "pageName=" + page + "&amp;action=search&amp;searchTerm=" + searchTerm;
+    img.src = "http://localhost:9000/_.gif?" + queryParams;
+    document.getElementById("trackingPixel").appendChild(img);
+}
+</code></pre>
+
+<p>This will generate an <code>&lt;img&gt;</code> with the following <code>src</code> attribute</p>
+
+<pre><code>http://localhost:9000/_.gif?pageName=search&amp;action=search&amp;searchTerm=test+search+term
+</code></pre>
+
+<p>The JS method for a <em>signup</em> event is </p>
+
+<pre><code>function captureSignUpEvent() {
+    var path = window.location.pathname;
+    var page = path.split("/").pop();
+
+    // Gets the name and email from the query parameters
+    var map = getNameAndEmail(window.location.search.substring(1));
+    var img = new Image(1, 1);
+    var queryParams = "pageName=" + page + "&amp;action=signup&amp;name=" + map["name"] + "&amp;email=" + map["email"];
+    img.src = "http://localhost:9000/_.gif?" + queryParams;
+    document.getElementById("trackingPixel").appendChild(img);
+}
+</code></pre>
+
+<p>and will generate an <code>&lt;img&gt;</code> with the <code>src</code></p>
+
+<pre><code>http://localhost:9000/_.gif?pageName=signup&amp;action=signup&amp;name=John+Doe&amp;email=john%40doe.com
+</code></pre>
+
+<h3 id="restfulwebservice">RESTful Web Service</h3>
+
+<p>The web service will capture the click event and log it to a file on the web server. The raw click events will be in the following format</p>
+
+<pre><code>event_id=f6be8dc8-ff78-11e3-8914-0a8e4d5da239|user_id=fd07b3be-d3fa-4b12-8c71-3f4a3b71d9d0|page_name=home|action=pageView|server_time=2014-06-29T10:34:35
+
+event_id=401c7d26-ff7f-11e3-ac38-0a8e4d5da239|user_id=fd07b3be-d3fa-4b12-8c71-3f4a3b71d9d0|page_name=search|action=search|server_time=2014-06-29T11:19:35|searchTerm=test search term
+
+event_id=ecbd8506-ff80-11e3-ac38-0a8e4d5da239|user_id=fd07b3be-d3fa-4b12-8c71-3f4a3b71d9d0|page_name=signup|action=signup|server_time=2014-06-29T11:31:34|email=john@doe.com|name=John Doe
+</code></pre>
+
+<p>If you want to try out the sample code, please feel free to get the full source code on <a href="https://github.com/atindriyaghosh/Clickstream-Data-Ingestion/tree/master/clickstream-data-capture/part-2">GitHub</a>. </p>
+
+<p>This code implementation is mostly for demonstration purposes so it doesn't have much processing code. For example, the search box doesn't implement any search functionality and only returns a static page. Similarly, the signup form doesn't persist the signup details in a DB. But, it allow you to understand the how the click events are actually captured and stored in  log file.  </p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Now that we have captured some data the next step would be to ingest this data some place where we can draw some insights from it. In future posts, I will show simple ways in which we can accomplish this. </p>]]></description><link>https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-2/</link><guid isPermaLink="false">cf6f1cef-4dbb-4691-ae6a-4124579211cd</guid><category><![CDATA[Clickstream Data]]></category><category><![CDATA[Tracking Pixel]]></category><category><![CDATA[Python]]></category><category><![CDATA[JavaScript]]></category><dc:creator><![CDATA[Atindriya Ghosh]]></dc:creator><pubDate>Sun, 29 Jun 2014 12:00:00 GMT</pubDate></item><item><title><![CDATA[How To Capture Clickstream Data (Part 1)]]></title><description><![CDATA[<p>In this post, I will explain what is clickstream data, how we capture it and provide a simple implementation.</p>
+
+<h2 id="whatisclickstreamdata">What is Clickstream Data?</h2>
+
+<p>Clickstream data is the stream of mouse clicks made by the users of your website. This data helps you in identifying how users engage with your site. </p>
+
+<p>For example, on an e-commerce site you can figure out which is the product page that garners the most views. If you provide recommendation services, this data helps in understanding which services are the most popular. </p>
+
+<p>In today's internet, you would be hard-pressed to find websites that don't capture clickstream data to some degree. In fact, this technique is not just limited to websites, it could also be extended to any web-based property such as emails etc.</p>
+
+<h2 id="howdowecaptureit">How do we capture it?</h2>
+
+<p>The process of capturing clickstream data follows a simple flow - </p>
+
+<ol>
+<li>There is a light-weight tracking mechanism embedded in the HTML code  </li>
+<li>This mechanism makes calls to a web service that is responsible for actually capturing the click data</li>
+</ol>
+
+<h3 id="trackingpixel">Tracking Pixel</h3>
+
+<p>The tracking pixel is the industry standard when it comes to tracking click data. It consists of a 1x1 pixel i.e. an <code>&lt;img&gt;</code> tag whose source is the endpoint of the web service that will capture the click data.</p>
+
+<p>A simple example </p>
+
+<pre><code>&lt;img width="1" height="1" src="http://webservice.com/"&gt;
+</code></pre>
+
+<p>Thus, all the website designer has to do is create this <code>&lt;img&gt;</code> tag using either HTML or JavaScript and the web service defined will be called when the page loads.</p>
+
+<h3 id="webservice">Web Service</h3>
+
+<p>The web service is a very simple RESTful web service, whose job it is to receive the request from the front-end and parse all the necessary data. Usually, most of the required data is passed to this RESTful service in the form of query parameters. But, some information like a unique user identifier can be captured from the cookie as well.</p>
+
+<h2 id="simpleimplementation">Simple Implementation</h2>
+
+<p>The rest of this post will focus on demonstrating a simple implementation of the Tracking Pixel and the RESTful web service required to capture clickstream data. The following code is written using basic Python and JavaScript. The complete source code can be found on <a href="https://github.com/atindriyaghosh/Clickstream-Data-Ingestion/tree/master/clickstream-data-capture/part-1">GitHub</a>. </p>
+
+<h3 id="clickevent">Click Event</h3>
+
+<p>Each instance of a click is known as a click event. Now, depending on your use case these events can be categorized into diferent types. </p>
+
+<p>For instance, we could have a <em>pageView</em> event when a web page is loaded. We could have a <em>link</em> event when a user clicks on a particular link on the page. In an e-commerce site there could be a <em>purchase</em> event or an <em>addToCart</em> event. </p>
+
+<p>Now, each click event consists of some attributes like eventId, action etc. These attributes give specific information about the type of event they constitute. For instance, in the e-commerce example, we might be interested in the order_id in a <em>purchase</em> event but not in a <em>pageView</em> event. </p>
+
+<p>But, while each click event type will have sets of different attributes, there will be some common attributes between them. An example being eventId. Each event will have a unique identifier associated with it. </p>
+
+<p>For the purposes of this post, I have made the following assumptions</p>
+
+<ol>
+<li>There is only one type of event - <em>pageview</em> event  </li>
+<li>Each <em>pageView</em> event will have the following attributes - <br>
+<ul><li>Event Id - Unique Event Identifier (Defined by a V1 UUID)</li>
+<li>User Id - Unique User Identifier (Defined by a V4 UUID)</li>
+<li>Page Name - The name of the page that is viewed (Currently, there is only 1 page)</li>
+<li>Action - Event Type (pageview by default)</li>
+<li>Server Time - Time at which the server received the event (Stored in the format yyyy-MM-ddThh:mm:ss)</li></ul></li>
+</ol>
+
+<h3 id="trackingpixel">Tracking Pixel</h3>
+
+<p>In this implementation, the <code>onload</code> event of the <code>&lt;body&gt;</code> tag will call a JavaScript method that will generate the Tracking Pixel. </p>
+
+<p>The JavaScript method will perform the following steps</p>
+
+<ol>
+<li>Get the name of the page  </li>
+<li>Create an <code>&lt;img&gt;</code> tag with dimensions 1x1 with the src set to the web service endpoint with additional query parameters</li>
+</ol>
+
+<p>Javascript code for the Tracking Pixel is</p>
+
+<pre><code>function hitTrackingPixel() {
+        var path = window.location.pathname;
+        var page = path.split("/").pop();
+        var img = new Image(1, 1);
+        var queryParams = 'pageName=' + page + '&amp;action=pageView'
+        img.src = 'http://localhost:9000/_.gif?' + queryParams;
+        document.body.insertAfter(img, document.body.firstChild);
+    }
+</code></pre>
+
+<p>The above JavaScript code will create an <code>&lt;img&gt;</code> tag with the following src attribute</p>
+
+<pre><code>http://localhost:9000/_.gif?pageName=/&amp;action=pageView
+</code></pre>
+
+<h3 id="restfulwebservice">RESTful Web Service</h3>
+
+<p>This service will have endpoints with the following behaviors</p>
+
+<ol>
+<li>Return the webpage (It will also check if the requesting client has a user_id set in the cookie. If not, it will generate one and set the cookie with the value)  </li>
+<li><p>Capture the Click Event and log it in a file on the server. The format of the logged event will be</p>
+
+<pre><code>event_id=&lt;event id&gt;|user_id=&lt;user id&gt;|page_name=/|action=pageView|server_time=&lt;server time&gt;
+</code></pre></li>
+</ol>
+
+<p>For the purposes of this post, I have implemented a simple HTTPServer in Python. I am not going to post the entire code here, but just a portion of it.</p>
+
+<pre><code>class TrackingPixelHandler(BaseHTTPRequestHandler): 
+    def do_GET(self):
+        parsed_path = urlparse.urlparse(self.path)
+        path = parsed_path.path
+
+        if(path == '/_.gif'):
+            ## Capture the event and log it to the server filesystem
+
+        if(path == ''):
+            ## Serve the page /
+
+## Start the server
+if __name__ == '__main__':    
+    server = HTTPServer(('', 9000), TrackingPixelHandler)
+    print 'Starting server, use &lt;Ctrl-C&gt; to stop'
+    server.serve_forever()
+</code></pre>
+
+<p>As mentioned earlier, the full code for the Python HTTPServer and the Tracking Pixel JavaScript code can be found on <a href="https://github.com/atindriyaghosh/Clickstream-Event-Ingestion">GitHub</a></p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Let's quickly review the concepts introduced in this post. </p>
+
+<ol>
+<li>Clickstream data helps identify how users interact with a web-based property.  </li>
+<li>We can capture this data using tracking pixels  </li>
+<li>Tracking pixels are merely <code>&lt;img&gt;</code> tags embedded in a html page whose src is set to a web service that actually captures the data  </li>
+<li>Finally, we saw a simple implementation of how to capture clickstream data</li>
+</ol>
+
+<p>In future posts, I will try to iterate on this implementations to capture more data.</p>]]></description><link>https://www.atindriyaghosh.com/how-to-capture-clickstream-data-part-1/</link><guid isPermaLink="false">a3886f98-f0c2-490e-a4d4-5a1b8f45dd55</guid><category><![CDATA[Clickstream Data]]></category><category><![CDATA[Tracking Pixel]]></category><category><![CDATA[Python]]></category><category><![CDATA[JavaScript]]></category><dc:creator><![CDATA[Atindriya Ghosh]]></dc:creator><pubDate>Tue, 10 Jun 2014 16:33:00 GMT</pubDate></item></channel></rss>
