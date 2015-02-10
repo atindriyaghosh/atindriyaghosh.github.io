@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Atindriya Ghosh]]></title><description><![CDATA[Hi, I'm Atin and welcome to my blog! I primarily write about things I learn in my day job as a Java developer. Feel free to look around and share your thoughts.]]></description><link>https://www.atindriyaghosh.com/</link><generator>Ghost 0.5</generator><lastBuildDate>Sun, 08 Feb 2015 14:45:59 GMT</lastBuildDate><atom:link href="https://www.atindriyaghosh.com/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Recommendation Systems 3 - User-based Recommendations]]></title><description><![CDATA[<p>In the last <a href="https://www.atindriyaghosh.com/recommendation-systems-2-similarity-scores/" title="Similarity Scores">post</a>, I covered three different algorithms for calculating similarity scores. Now, lets see how these similarity scores can be used to generate User-based recommendations.</p>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Atindriya Ghosh]]></title><description><![CDATA[Hi, I'm Atin and welcome to my blog! I primarily write about things I learn in my day job as a Java developer. Feel free to look around and share your thoughts.]]></description><link>https://www.atindriyaghosh.com/</link><generator>Ghost 0.5</generator><lastBuildDate>Tue, 10 Feb 2015 18:07:47 GMT</lastBuildDate><atom:link href="https://www.atindriyaghosh.com/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Recommendation Systems 3 - User-based Recommendations]]></title><description><![CDATA[<p>In the last <a href="https://www.atindriyaghosh.com/recommendation-systems-2-similarity-scores/" title="Similarity Scores">post</a>, I covered three different algorithms for calculating similarity scores. Now, lets see how these similarity scores can be used to generate User-based recommendations.</p>
 
 <h1 id="generatinguserbasedrecommendations">Generating User-based Recommendations</h1>
 
@@ -168,8 +168,7 @@
     similarMovies = [movie for movie in ratings[user1]
                      if movie in ratings[user2]]
 
-    # If there are similar movies calculate similarity score, else similarity
-    # score is 0
+    # If there are similar movies calculate similarity score, else similarity score is 0
     similarityScore = 0 
     if(len(similarMovies) != 0):
         euclDistance = Decimal(sum(
