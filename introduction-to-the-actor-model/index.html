@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <!-- (1) Optimize for mobile versions: http://goo.gl/EOpFl -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- (1) force latest IE rendering engine: bit.ly/1c8EiC9 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Introduction To The Actor Model</title>
+    <meta name="description" content="" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Introduction To The Actor Model">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:site" content="https://www.atindriyaghosh.com">
+    <meta name="twitter:creator" content="@A3Ghosh">
+    <meta name="google-site-verification" content="">
+    <meta property="fb:admins" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Introduction To The Actor Model">
+    <meta property="og:description" content="">
+
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../assets/js/styles/obsidian.css">
+    <link rel="stylesheet" href="http://brick.a.ssl.fastly.net/Linux+Libertine:400,400i,700,700i/Open+Sans:400,400i,700,700i">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="screen" href="../assets/css/main.css" />
+    <link rel="stylesheet" type="text/css" media="print" href="../assets/css/print.css" />
+	<!-- Pushy CSS -->
+    <link rel="stylesheet" href="../assets/css/pushy.css">
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <link rel="canonical" href="https://www.atindriyaghosh.com/introduction-to-the-actor-model/" />
+    
+    <meta property="og:site_name" content="Atindriya Ghosh" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Introduction To The Actor Model" />
+    <meta property="og:description" content="Recently, I discovered a new concurrency model known as the Actor Model. This post provides a brief introduction to it. Concurrency &amp; Parallelism Before I dive into the Actor Model, let me briefly touch upon the concepts of concurrency and..." />
+    <meta property="og:url" content="https://www.atindriyaghosh.com/introduction-to-the-actor-model/" />
+    <meta property="article:published_time" content="2015-05-03T12:37:11.471Z" />
+    <meta property="article:modified_time" content="2015-05-03T12:37:11.467Z" />
+    
+    <meta name="twitter:card" content="content" />
+    <meta name="twitter:title" content="Introduction To The Actor Model" />
+    <meta name="twitter:description" content="Recently, I discovered a new concurrency model known as the Actor Model. This post provides a brief introduction to it. Concurrency &amp; Parallelism Before I dive into the Actor Model, let me briefly touch upon the concepts of concurrency and..." />
+    <meta name="twitter:url" content="https://www.atindriyaghosh.com/introduction-to-the-actor-model/" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Atindriya Ghosh",
+    "author": {
+        "@type": "Person",
+        "name": "Atindriya Ghosh",
+        "image": "https://www.atindriyaghosh.com/content/images/2015/02/Self-1.jpg",
+        "url": "https://www.atindriyaghosh.com/author/atindriya-ghosh",
+        "sameAs": null
+    },
+    "headline": "Introduction To The Actor Model",
+    "url": "https://www.atindriyaghosh.com/introduction-to-the-actor-model/",
+    "datePublished": "2015-05-03T12:37:11.471Z",
+    "dateModified": "2015-05-03T12:37:11.467Z",
+    "description": "Recently, I discovered a new concurrency model known as the Actor Model. This post provides a brief introduction to it. Concurrency &amp; Parallelism Before I dive into the Actor Model, let me briefly touch upon the concepts of concurrency and"
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.5" />
+    <link rel="alternate" type="application/rss+xml" title="Atindriya Ghosh" href="../rss" />
+</head>
+<body class="post-template">
+	<!-- Pushy Menu -->
+    <nav class="pushy pushy-left">
+        <ul>
+			<li><a href=".."><span class="fa fa-home fa-2x"></span>&nbsp;&nbsp;&nbsp;&nbsp;Home</a></li>
+            <li><a href="../aboutme"><span class="fa fa-user fa-2x"></span>&nbsp;&nbsp;&nbsp;&nbsp;About Me</a></li>
+			<li>
+			<div id="at_search">
+				<form>
+				  <input type="text" id="search-field" placeholder="Search" autocomplete="off" />
+				</form>
+				<div id="results" class="at_search_results"></div>
+			</div>
+			</li>
+        </ul>
+    </nav>
+
+    <!-- Site Overlay -->
+    <div class="site-overlay"></div>
+	
+	<div id="container">
+		<!-- Menu Button -->
+		<div class="menu-btn logo-readium logo"><span class="logo"></span></div>
+		
+
+<main role="main">
+	<!-- Added this fix since IE doesn't support main tag -->
+	<div class="content">
+
+		<article class="post">
+
+
+
+			<div class="noarticleimage">
+				<div class="post-meta">
+					<h1 class="post-title">Introduction To The Actor Model</h1>
+					<div class="cf post-meta-text">
+						<div class="author-image" style="background-image: url(../content/images/2015/02/Self-1.jpg)">Blog Logo</div>
+						<h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person"><a href="../author/atindriya-ghosh">Atindriya Ghosh</a></h4> on
+						<time datetime="2015-05-03">03 May 2015</time>, tagged on 
+					</div>
+				</div>
+			</div>
+			<br>
+			<br>
+			<br>
+
+
+
+				<section class="post-content">
+					<div class="post-reading">
+						<span class="post-reading-time"></span> read
+					</div>
+					<a name="topofpage"></a>
+					<p>Recently, I discovered a new concurrency model known as the Actor Model. This post provides a brief introduction to it.</p>
+
+<h1 id="concurrencyparallelism">Concurrency &amp; Parallelism</h1>
+
+<p>Before I dive into the Actor Model, let me briefly touch upon the concepts of concurrency and parallelism. </p>
+
+<p>There is a lot of debate about the exact definitions of these terms. For the purposes of this article, I am going to use the below definitions. Also I am going to use the term 'process' a lot. Here, the term 'process' is not an OS-level process but a more general concept i.e. some abstract computation.</p>
+
+<ol>
+<li><p><strong>Concurrency</strong> - Concurrency is a property of an application or a system in which two or more processes are making progress during a specific time period. While all (or a subset) of these processes could execute simultaneously, this is neither guaranteed nor necessary for concurrency. </p></li>
+<li><p><strong>Parallelism</strong> - Parallelism is a condition in which two or more processes are executing simultaneously.</p></li>
+</ol>
+
+<p>Thus, concurrency is an application or system attribute while parallelism is more  a runtime behavior. </p>
+
+<p>Several processes in a concurrent application or system could run in parallel or a single process could have several sub-processes which run in parallel. But, parallelism is <em>not</em> an inherent attribute of concurrent applications or systems.</p>
+
+<h2 id="concurrencytypes">Concurrency Types</h2>
+
+<p>I just want to talk about one last thing, before I go into the Actor Model, namely, the types of concurrency. Concurrency can be broadly divided into 2 types depending on how processes interact with each other. </p>
+
+<ol>
+<li><p><strong>Shared-state Concurrency</strong> - This mainly involves multiple processes  communicating with each other by accessing some mutable data which requires co-ordination using tools such as locks, synchronized blocks, mutexes, semaphores etc. This is usually used in concurrent <em>applications</em></p></li>
+<li><p><strong>Message-passing</strong> - This mainly involves multiple processes communicating with each other using messages. Thus, since there is no shared state between processes, the need for locks etc is mitigated. This is usually used in concurrent <em>systems</em>.</p></li>
+</ol>
+
+<p>The Actor Model belongs to the Message-passing type of concurrency.</p>
+
+<h1 id="actormodel">Actor Model</h1>
+
+<p>Though I only recently discovered it, the Actor Model has been in existence since the 1970s. The basic concept behind it is surprisingly intuitive.</p>
+
+<p>The easiest way to understand it by using the metaphor of Email systems. </p>
+
+<h2 id="emailsystemmetaphor">Email System Metaphor</h2>
+
+<p>Take a scenario where you want one of your co-workers to create a Powerpoint presentation. You would send her an email informing her that you need a presentation made on some topic. Once she has finished making the presentation, she will send you an email back saying that she has done it. Additionally, the email will contain the presentation as an attachment.</p>
+
+<p><img src="../content/images/2015/05/Actor-Model---Single-Process.jpg" alt="Actor Model - Single Process" /></p>
+
+<p>If the presentation is large and has to be made on a tight schedule, you might as k multiple co-workers to make slides for specific sections which you would later combine.</p>
+
+<p><img src="../content/images/2015/05/Actor-Model-Multiple-Processes.jpg" alt="Actor Model - Multiple Process" /></p>
+
+<p>This is the Actor Model in its simplest form. </p>
+
+<h2 id="terminology">Terminology</h2>
+
+<p>In the Actor Model terminology, you and your co-workers are <strong>Actors</strong> and the emails that you exchange are <strong>messages</strong>. These messages are immutable i.e. they cannot be modified. The organization that you and your co-workers belong to are an <strong>Actor System</strong>. You can have Actors from different Actor Systems sending each other messages just like people from different organizations can send each other emails. Each Actor is identified by an address relative to the Actor System to which it belongs. </p>
+
+<p>Each Actor has its own <strong>mailbox</strong>, where messages are queued. Each Actor reads the messages in its mailbox in order. Depending on the message, the Actor can execute some process, forward the message to another Actor, reply back to the sender or simply ignore the message. </p>
+
+<p>Message passing in the Actor Model is asynchronous in nature. Just like you can send an email to a co-worker and work on something else until she replies, so can an Actor.</p>
+
+<h2 id="advantages">Advantages</h2>
+
+<p>The greatest advantage of the Actor Model is that it provides a higher level of abstraction over such primitives such as threads, locks etc. It is much easier to model a problem domain using the paradigm of the Actor Model, since it mimics our daily life. </p>
+
+<p>Additionally, due to the inherent immutability of messages the challenges of shared state is mitigated, greatly reducing the occurrence of concurrency problems such as race conditions and deadlocks. </p>
+
+<p>Another added advantage is that of asynchronous message passing. This allows each individual actor to work on some other process without having to block while it waits for some other actor to finish processing. Thus, this increases the throughput of the application or system as a whole.</p>
+
+<h1 id="popularimplementations">Popular Implementations</h1>
+
+<p>Some of the popular implementations of the Actor Model are given below</p>
+
+<ol>
+<li><p><a href="http://akka.io/" title="Akka">Akka</a> - Arguably the most popular implementation of the Actor Model. This framework mainly targets the JVM and can be used by the Java &amp; Scala programming languages. There exist various ports for other runtime environment like Akka.NET for the .NET framework. It is used by projects like Apache Spark, Play Framework, Coursera among others</p></li>
+<li><p><a href="http://www.erlang.org/" title="Erlang">Erlang</a> - The concurrency implementation used in the Erlang programming language is based on the Actor Model. Projects including CouchDB, Riak and RabbitMQ are written primarily in Erlang</p></li>
+<li><p><a href="http://dotnet.github.io/orleans/" title="Project Orleans">Project Orleans</a> - An implementation by Microsoft Research designed primarily for cloud applications. It is famously used as the platform for all cloud services of the XBox game Halo 4</p></li>
+</ol>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>I hope the above post gives a brief overview of the Actor Model. Considering the current trend towards increasingly concurrent applications and systems, this model adds a new tool that can be added to our concurrency toolbox. I hope to expand on this post as my own understanding of the possibilities and limitations of this model increases.</p>
+
+<h1 id="references">References</h1>
+
+<ol>
+<li><a href="http://www.amazon.com/Akka-Concurrency-Derek-Wyatt/dp/0981531660" title="Akka Concurrency - Derek Wyatt">Akka Concurrency - Derek Wyatt</a>  </li>
+<li><a href="http://en.wikipedia.org/wiki/Actor_model" title="Actor Model - Wikipedia">Actor Model - Wikipedia</a></li>
+</ol>
+				</section>
+				<footer class="post-footer">
+					<section class="share">
+						<a class="icon-twitter" href="http://twitter.com/share?text=Introduction%20To%20The%20Actor%20Model&url=https://www.atindriyaghosh.com/introduction-to-the-actor-model/"
+							onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+							<span class="hidden">Twitter</span>
+						</a>
+						<a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://www.atindriyaghosh.com/introduction-to-the-actor-model/"
+							onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+							<span class="hidden">Facebook</span>
+						</a>
+						<a class="icon-google-plus" href="https://plus.google.com/share?url=https://www.atindriyaghosh.com/introduction-to-the-actor-model/"
+						   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+							<span class="hidden">Google+</span>
+						</a>
+					</section>
+				</footer>
+				<div class="bottom-teaser cf">
+					<div class="isLeft">
+						<h5 class="index-headline featured"><span>Written by</span></h5>
+						<section class="author">
+							<div class="author-image" style="background-image: url(../content/images/2015/02/Self-1.jpg)">Blog Logo</div>
+							<h4><a href="../author/atindriya-ghosh">Atindriya Ghosh</a></h4>
+							<p class="bio">Atindriya is a Java Developer currently working with Accenture. He mostly works with and writes about Big Data Technologies</p>
+							<hr>
+							<p class="published">
+								<a class="fa fa-twitter fa-2x" href="https://twitter.com/A3Ghosh" target="_blank">
+								</a>
+								<a class="fa fa-google-plus fa-2x" href="https://plus.google.com/+AtindriyaGhosh1989?rel=author" target="_blank">
+								</a>
+								<a class="fa fa-linkedin-square fa-2x" href="http://in.linkedin.com/in/atindriyaghosh/" target="_blank">
+								</a>
+								<a class="fa fa-github fa-2x" href="https://github.com/atindriyaghosh" target="_blank">
+								</a>
+								<a class="fa fa-rss-square fa-2x" href="http://feedpress.me/atindriyaghosh" target="_blank">
+								</a>							
+							</p>
+						</section>
+					</div>
+					<div class="isRight">
+						<h5 class="index-headline featured"><span>License</span></h5>
+						<footer class="site-footer">
+							<div class="inner">
+								<section class="copyright"><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" /></a><br />&copy; 2015 by <a href="..">Atindriya Ghosh</a>.<br/>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.</section>
+								<br/>
+							</div>
+							<section class="poweredby">Proudly published with <a class="icon-ghost" href="http://ghost.org"> Ghost</a></section>
+						</footer>
+					</div>
+				</div>
+				
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				    var disqus_shortname = 'atindriyaghosh'; // required: replace example with your forum shortname
+				
+				    (function() {
+				        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+				        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				    })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+		</article>
+	</div>
+</main>
+
+<div class="bottom-closer">
+    <div class="background-closer-image" style="background-image: url(../content/images/2015/02/2230472EC0-1.jpg)">
+        Image
+    </div>
+    <div class="inner">
+        <h1 class="blog-title">Atindriya Ghosh</h1>
+        <h2 class="blog-description">Hi, I&#x27;m Atin and welcome to my blog! I primarily write about things I learn in my day job as a Java developer. Feel free to look around and share your thoughts.</h2>
+        <a href=".." class="btn">Back to Home</a>
+    </div>
+</div>
+
+	</div>
+    <script src="../public/jquery.js"></script>
+	
+    <script type="text/javascript" src="../assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="../assets/js/index.js"></script>
+    <script src="../assets/js/readingTime.min.js"></script>
+    <script src="../assets/js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+	<script type="text/javascript" src="../assets/js/google-analytics.js"></script>
+	
+	<!-- Pushy JS -->
+    <script type="text/javascript" src="../assets/js/min/pushy.min.js"></script>
+	
+	<!-- Ghosthunter JS -->
+	<script type="text/javascript" src="../assets/js/min/jquery.ghostHunter.min.js"></script>
+	<script type="text/javascript" src="../assets/js/ghostHunter-init.js"></script>
+	
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+
+</body>
+</html>
